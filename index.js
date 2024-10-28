@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 
-app.get('/', async (req, res) => {
+app.get('/', async (req, res) => {     
     res.send("Hi, use /api/exchange to use this api.")
 });
 // Route to get exchange rate
@@ -20,12 +20,19 @@ app.get('/api/exchange', async (req, res) => {
     if (!from || !to) {
         return res.status(400).json({ error: 'Please provide both "from" and "to" currencies.' });
     }
+    const test_from = await axios.get(`https://open.er-api.com/v6/latest`);
+    
+    // test 'from' currency
+    if(!test_from.data.rates[from]){   
+        return res.status(404).json({ error: `Currency "${from}" not found.` });
+    }
 
     try {
 
         const response = await axios.get(`https://open.er-api.com/v6/latest/${from}`);
         const rates = response.data.rates;
 
+        // test 'to' currency
         if (!rates[to]) {
             return res.status(404).json({ error: `Currency "${to}" not found.` });
         }
