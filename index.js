@@ -1,4 +1,3 @@
-// index.js
 const express = require('express');
 const axios = require('axios');
 require('dotenv').config();
@@ -26,11 +25,16 @@ const swaggerOptions = {
             },
         ],
     },
-    apis: ['index.js'], // Path to the API docs
+    apis: ['index.js'], 
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+app.get('/api-docs.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerDocs); 
+});
 
 app.get('/', async (req, res) => {     
     res.send("Hi, use /api/exchange to use this api.")
