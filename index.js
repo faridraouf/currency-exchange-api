@@ -36,7 +36,7 @@ app.get('/api-docs.json', (req, res) => {
     res.send(swaggerDocs); 
 });
 
-app.get('/', async (req, res) => {     
+app.get('/', (req, res) => {     
     res.send("Hi, use /api/exchange to use this api.")
 });
 
@@ -102,7 +102,10 @@ app.get('/', async (req, res) => {
  *                   type: string
  */
 app.get('/api/exchange', async (req, res) => {
-    const { from, to } = req.query;
+
+    // ensure it is in uppercase
+    const from = req.query.from.toLocaleUpperCase();
+    const to = req.query.to.toLocaleUpperCase();
 
     if (!from || !to) {
         return res.status(400).json({ error: 'Please provide both "from" and "to" currencies.' });
@@ -111,7 +114,7 @@ app.get('/api/exchange', async (req, res) => {
     
     // test 'from' currency
     if(!test_from.data.rates[from]){   
-        return res.status(404).json({ error: `Currency "${from}" not found.` });
+        return res.status(404).json({ error: `Currency ${from} not found.` });
     }
 
     try {
@@ -121,12 +124,13 @@ app.get('/api/exchange', async (req, res) => {
 
         // test 'to' currency
         if (!rates[to]) {
-            return res.status(404).json({ error: `Currency "${to}" not found.` });
+            return res.status(404).json({ error: `Currency ${to} not found.` });
         }
         
         const exchangeRate = rates[to];
         return res.json({ from, to, exchangeRate });
-    } catch (error) {
+    } 
+    catch (error) {
         console.error(error); // Log the error for debugging
         return res.status(500).json({ error: 'Failed to fetch exchange rates. Please try again later.' });
     }
