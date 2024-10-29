@@ -1,11 +1,14 @@
 version: '3.8'
 
 services:
-  currency-exchange:
+  app:
+    image: faridraouf/currency-exchange-api:latest
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+    volumes:
+      - .:/app
     environment:
-      - PORT=3000
+      - NODE_ENV=production
