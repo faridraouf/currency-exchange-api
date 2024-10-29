@@ -2,6 +2,8 @@
 const express = require('express');
 const axios = require('axios');
 require('dotenv').config();
+const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,11 +11,92 @@ const PORT = process.env.PORT || 3000;
 // Middleware to parse JSON requests
 app.use(express.json());
 
+// Swagger setup
+const swaggerOptions = {
+    swaggerDefinition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Currency Exchange API',
+            version: '1.0.0',
+            description: 'API for fetching currency exchange rates',
+        },
+        servers: [
+            {
+                url: `http://localhost:${PORT}`,
+            },
+        ],
+    },
+    apis: ['index.js'], // Path to the API docs
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 app.get('/', async (req, res) => {     
     res.send("Hi, use /api/exchange to use this api.")
 });
+
 // Route to get exchange rate
+/**
+ * @swagger
+ * /api/exchange:
+ *   get:
+ *     summary: Get the exchange rate between two currencies
+ *     parameters:
+ *       - in: query
+ *         name: from
+ *         required: true
+ *         description: Currency to convert from (e.g., USD)
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: to
+ *         required: true
+ *         description: Currency to convert to (e.g., EUR)
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Successful response with exchange rate
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 from:
+ *                   type: string
+ *                 to:
+ *                   type: string
+ *                 exchangeRate:
+ *                   type: number
+ *       400:
+ *         description: Missing parameters
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *       404:
+ *         description: Currency not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ */
 app.get('/api/exchange', async (req, res) => {
     const { from, to } = req.query;
 
